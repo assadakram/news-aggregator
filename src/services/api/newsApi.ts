@@ -6,10 +6,9 @@ const GUARDIAN_API_KEY = import.meta.env.VITE_GUARDIAN_API_KEY;
 const NYT_API_KEY = import.meta.env.VITE_NYT_API_KEY;
 
 const newsApiClient = axios.create({
-  baseURL: "https://newsapi.org/v2/top-headlines",
+  baseURL: "https://newsapi.org/v2",
   params: { apiKey: NEWS_API_KEY },
 });
-
 const guardianClient = axios.create({
   baseURL: "https://content.guardianapis.com",
   params: {
@@ -31,39 +30,81 @@ type Payload = {
   authors?: string;
 };
 
-export const fetchNewsApiArticles = async ({ q, category, fromDate, toDate, authors }: Payload): Promise<Article[]> => {
+export const fetchNewsApiArticles = async ({
+  q,
+  category,
+  fromDate,
+  toDate,
+}: Payload): Promise<Article[]> => {
   try {
-    const response = await newsApiClient.get("/", {
-      params: {
-        q,
-        category: category || undefined,
-        from: fromDate || undefined,
-        to: toDate || undefined,
-        authors: authors || undefined,
-        sortBy: "publishedAt",
-      },
-    });
+    let response;
 
-    return response.data.articles.map((article: any) => ({
-      id: article.url,
-      title: article.title,
-      description: article.description,
-      url: article.url,
-      imageUrl: article.urlToImage,
-      publishedAt: article.publishedAt,
-      source: article.source.name,
-      category: category || undefined,
-      author: article.author,
-    }));
+    if (q && (fromDate || toDate)) {
+      response = await newsApiClient.get("/everything", {
+        params: {
+          q,
+          from: fromDate || undefined,
+          to: toDate || undefined,
+          sortBy: "publishedAt",
+        },
+      });
+    } else {
+      response = await newsApiClient.get("/top-headlines", {
+        params: {
+          category,
+          q: q || "",
+          sortBy: "publishedAt",
+        },
+      });
+    }
+
+    let articles = response.data.articles.map(
+      (article: {
+        url: string;
+        title: string;
+        description: string;
+        urlToImage: string;
+        publishedAt: string;
+        source: { name: string };
+        author: string;
+      }) => ({
+        id: article.url,
+        title: article.title,
+        description: article.description,
+        url: article.url,
+        imageUrl: article.urlToImage,
+        publishedAt: article.publishedAt,
+        source: article.source.name,
+        category,
+        author: article.author,
+      })
+    );
+
+    if (fromDate || toDate) {
+      const fromTimestamp = fromDate ? new Date(fromDate).getTime() : 0;
+      const toTimestamp = toDate ? new Date(toDate).getTime() : Infinity;
+
+      articles = articles.filter((article: Article) => {
+        const publishedAt: number = new Date(article.publishedAt).getTime();
+        return publishedAt >= fromTimestamp && publishedAt <= toTimestamp;
+      });
+    }
+
+    return articles;
   } catch (error) {
     console.error("Error fetching NewsAPI articles:", error);
     return [];
   }
 };
 
-export const fetchGuardianArticles = async ({ q, category, fromDate, toDate }: Payload): Promise<Article[]> => {
+export const fetchGuardianArticles = async ({
+  q,
+  category,
+  fromDate,
+  toDate,
+}: Payload): Promise<Article[]> => {
   try {
-    let response = await guardianClient.get("/search", {
+    const response = await guardianClient.get("/search", {
       params: {
         q,
         section: category || undefined,
@@ -73,31 +114,38 @@ export const fetchGuardianArticles = async ({ q, category, fromDate, toDate }: P
       },
     });
 
-    // Temporary fix as we are getting empty results with section filter
-    if (response.data.response.results.length === 0 && category) {
-      response = await guardianClient.get("/search", {
-        params: { q, "from-date": fromDate, "to-date": toDate, orderBy: "newest" },
-      });
-    }
-
-    return response.data.response.results.map((article: any) => ({
-      id: article.id,
-      title: article.webTitle,
-      description: article.fields?.trailText || "",
-      url: article.webUrl,
-      imageUrl: article.fields?.thumbnail,
-      publishedAt: article.webPublicationDate,
-      source: "The Guardian",
-      category: category || undefined,
-      author: article.fields?.byline,
-    }));
+    return response.data.response.results.map(
+      (article: {
+        id: string;
+        webTitle: string;
+        fields?: { trailText?: string; thumbnail?: string; byline?: string };
+        webUrl: string;
+        webPublicationDate: string;
+      }) => ({
+        id: article.id,
+        title: article.webTitle,
+        description: article.fields?.trailText || "",
+        url: article.webUrl,
+        imageUrl: article.fields?.thumbnail,
+        publishedAt: article.webPublicationDate,
+        source: "The Guardian",
+        category: category || undefined,
+        author: article.fields?.byline,
+      })
+    );
   } catch (error) {
     console.error("Error fetching The Guardian articles:", error);
     return [];
   }
 };
 
-export const fetchNYTArticles = async ({ q, category, fromDate, toDate, authors }: Payload): Promise<Article[]> => {
+export const fetchNYTArticles = async ({
+  q,
+  category,
+  fromDate,
+  toDate,
+  authors,
+}: Payload): Promise<Article[]> => {
   try {
     const formattedCategory = category ? `section_name:("${category}")` : "";
     const formattedAuthors = authors ? `byline:("${authors}")` : "";
@@ -112,19 +160,29 @@ export const fetchNYTArticles = async ({ q, category, fromDate, toDate, authors 
       },
     });
 
-    return response.data.response.docs.map((article: any) => ({
-      id: article._id,
-      title: article.headline.main,
-      description: article.abstract,
-      url: article.web_url,
-      imageUrl: article.multimedia?.length
-        ? `https://www.nytimes.com/${article.multimedia[0].url}`
-        : undefined,
-      publishedAt: article.pub_date,
-      source: "The New York Times",
-      category: category || undefined,
-      author: article.byline?.original,
-    }));
+    return response.data.response.docs.map(
+      (article: {
+        _id: string;
+        headline: { main: string };
+        abstract: string;
+        web_url: string;
+        multimedia: { url: string }[];
+        pub_date: string;
+        byline: { original: string };
+      }) => ({
+        id: article._id,
+        title: article.headline.main,
+        description: article.abstract,
+        url: article.web_url,
+        imageUrl: article.multimedia?.length
+          ? `https://www.nytimes.com/${article.multimedia[0].url}`
+          : undefined,
+        publishedAt: article.pub_date,
+        source: "The New York Times",
+        category: category || undefined,
+        author: article.byline?.original,
+      })
+    );
   } catch (error) {
     console.error("Error fetching NYT articles:", error);
     return [];

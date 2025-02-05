@@ -1,21 +1,21 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { NewsStore } from '../types/news';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { NewsStore } from "../types/news";
 
 export const useNewsStore = create<NewsStore>()(
   persist(
     (set) => ({
       filters: {
-        search: '',
+        search: "",
         categories: [],
         authors: [],
-        fromDate: '',
-        toDate: '',
+        fromDate: "",
+        toDate: "",
       },
       sources: [
-        { id: 'newsapi', name: 'NewsAPI', enabled: true },
-        { id: 'guardian', name: 'The Guardian', enabled: true },
-        { id: 'nyt', name: 'The New York Times', enabled: true },
+        { id: "newsapi", name: "NewsAPI", enabled: true },
+        { id: "guardian", name: "The Guardian", enabled: true },
+        { id: "nyt", name: "The New York Times", enabled: true },
       ],
       setFilters: (newFilters) =>
         set((state) => ({
@@ -24,12 +24,14 @@ export const useNewsStore = create<NewsStore>()(
       toggleSource: (sourceId) =>
         set((state) => ({
           sources: state.sources.map((source) =>
-            source.id === sourceId ? { ...source, enabled: !source.enabled } : source
+            source.id === sourceId
+              ? { ...source, enabled: !source.enabled }
+              : source
           ),
         })),
     }),
     {
-      name: 'news-preferences-storage',
+      name: "news-preferences-storage",
       getStorage: () => localStorage,
       partialize: (state) => ({
         filters: state.filters,
