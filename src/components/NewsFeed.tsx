@@ -16,7 +16,7 @@ export const NewsFeed: React.FC = () => {
 
   const payload = useMemo(
     () => ({
-      q: filters.search || undefined, // If no search query, use undefined
+      q: filters.search || undefined,
       category: filters.categories.length
         ? filters.categories.join(",")
         : undefined,
@@ -39,14 +39,13 @@ export const NewsFeed: React.FC = () => {
   );
 
   useEffect(() => {
-    // If no search query but user has selected categories, authors, or sources, fetch personalized feed
     if (
       !filters.search &&
       filters.categories.length === 0 &&
       filters.authors.length === 0 &&
       !filters.fromDate
     ) {
-      setArticles([]); // Clear articles if no filters are set
+      setArticles([]);
       return;
     }
 
@@ -68,8 +67,6 @@ export const NewsFeed: React.FC = () => {
 
         const results = await Promise.all(promises);
         const allArticles = results.flat();
-
-        console.log("Fetched articles:", allArticles); // Log fetched data
 
         setArticles(
           allArticles.sort(
@@ -96,7 +93,7 @@ export const NewsFeed: React.FC = () => {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-semibold text-gray-600">
-          Your personalized news feed is empty.
+          Enter a search term or select a category/author to find articles
         </h2>
         <p className="text-gray-500">
           Select categories, sources, or authors to see relevant articles.

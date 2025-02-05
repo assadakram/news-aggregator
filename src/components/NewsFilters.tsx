@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, X, AlertCircle } from "lucide-react";
 import { useNewsStore } from "../store/useNewsStore";
 import { useDebounce } from "../hooks/useDebounce";
 
@@ -16,77 +16,129 @@ const categories = [
 export const NewsFilters: React.FC = () => {
   const { filters, setFilters, sources, toggleSource } = useNewsStore();
   const [searchTerm, setSearchTerm] = useState(filters.search);
+  const [showWarning, setShowWarning] = useState(false);
   const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     setFilters({ search: debouncedSearch });
   }, [debouncedSearch, setFilters]);
 
+  // Ensures at least one source remains selected
+  const handleToggleSource = (sourceId: string) => {
+    const updatedSources = sources.map((source) =>
+      source.id === sourceId ? { ...source, enabled: !source.enabled } : source
+    );
+
+    // Check if all sources are disabled
+    if (updatedSources.every((s) => !s.enabled)) {
+      setShowWarning(true);
+      return;
+    }
+
+    setShowWarning(false);
+    toggleSource(sourceId);
+  };
+
+  // Ensures only one category is selected at a time
+  const handleCategorySelection = (category: string) => {
+    setFilters({
+      categories: filters.categories.includes(category) ? [] : [category],
+    });
+  };
+
+  // Clear filters and reset sources to all selected
+  const clearFilters = () => {
+    setFilters({ search: "", categories: [], fromDate: "", toDate: "" });
+    sources.forEach((source) => {
+      if (!source.enabled) toggleSource(source.id);
+    });
+    setShowWarning(false);
+  };
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-      <div className="flex flex-col gap-4">
-        {/* Search Input */}
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search articles..."
-            className="w-full pl-10 pr-4 py-2 border rounded-md"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+    <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">Filters</h2>
 
-        <div className="flex flex-wrap gap-3">
-          {sources.map(({ id, name, enabled }) => (
-            <button
-              key={id}
-              onClick={() => toggleSource(id)}
-              className={`px-3 py-1 rounded-full text-sm ${
-                enabled
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setFilters({ categories: [category] })}
-              className={`px-3 py-1 rounded-full text-sm ${
-                filters.categories.includes(category)
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <input
-            type="date"
-            value={filters.fromDate || ""}
-            onChange={(e) => setFilters({ fromDate: e.target.value })}
-            className="pl-4 pr-4 py-2 border rounded-md"
-          />
-          <input
-            type="date"
-            value={filters.toDate || ""}
-            onChange={(e) => setFilters({ toDate: e.target.value })}
-            className="pl-4 pr-4 py-2 border rounded-md"
-          />
-        </div>
+      {/* Search Input */}
+      <div className="relative mb-4">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          size={20}
+        />
+        <input
+          type="text"
+          placeholder="Search articles..."
+          className="w-full pl-10 pr-4 py-2 border rounded-md"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
+
+      {/* Source Selection */}
+      <h3 className="text-lg font-medium text-gray-700 mb-2">Sources</h3>
+      <div className="flex flex-wrap gap-3 mb-4">
+        {sources.map(({ id, name, enabled }) => (
+          <button
+            key={id}
+            onClick={() => handleToggleSource(id)}
+            className={`px-3 py-1 rounded-full text-sm ${
+              enabled ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+            }`}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+
+      {/* Warning Message for Source Selection */}
+      {showWarning && (
+        <div className="flex items-center gap-2 text-red-600 text-sm mb-4">
+          <AlertCircle size={16} /> At least one source must be selected.
+        </div>
+      )}
+
+      {/* Category Selection (Single-Select Toggle Button) */}
+      <h3 className="text-lg font-medium text-gray-700 mb-2">Category</h3>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => handleCategorySelection(category)}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              filters.categories.includes(category)
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Date Range Selection */}
+      <h3 className="text-lg font-medium text-gray-700 mb-2">Date Range</h3>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <input
+          type="date"
+          value={filters.fromDate || ""}
+          onChange={(e) => setFilters({ fromDate: e.target.value })}
+          className="pl-4 pr-4 py-2 border rounded-md"
+        />
+        <input
+          type="date"
+          value={filters.toDate || ""}
+          onChange={(e) => setFilters({ toDate: e.target.value })}
+          className="pl-4 pr-4 py-2 border rounded-md"
+        />
+      </div>
+
+      {/* Clear Filters Button */}
+      <button
+        onClick={clearFilters}
+        className="flex items-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+      >
+        <X size={16} className="mr-2" /> Clear Filters
+      </button>
     </div>
   );
 };
