@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Search, X, AlertCircle } from "lucide-react";
-import { useNewsStore } from "../store/useNewsStore";
+import { AlertCircle, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useDebounce } from "../hooks/useDebounce";
+import { useNewsStore } from "../store/useNewsStore";
 
 const categories = [
-  "general",
-  "business",
-  "technology",
-  "sports",
-  "entertainment",
-  "science",
-  "health",
+  "Business",
+  "Technology",
+  "Sports",
+  "Entertainment",
+  "Science",
+  "Health",
 ];
 
 export const NewsFilters: React.FC = () => {
@@ -29,9 +28,11 @@ export const NewsFilters: React.FC = () => {
       source.id === sourceId ? { ...source, enabled: !source.enabled } : source
     );
 
-    // Check if all sources are disabled
     if (updatedSources.every((s) => !s.enabled)) {
       setShowWarning(true);
+
+      setTimeout(() => setShowWarning(false), 2000);
+
       return;
     }
 
@@ -48,11 +49,15 @@ export const NewsFilters: React.FC = () => {
 
   // Clear filters and reset sources to all selected
   const clearFilters = () => {
-    setFilters({ search: "", categories: [], fromDate: "", toDate: "" });
+    setFilters({
+      search: "",
+      categories: ["Business"],
+      fromDate: "",
+      toDate: "",
+    });
     sources.forEach((source) => {
       if (!source.enabled) toggleSource(source.id);
     });
-    setShowWarning(false);
   };
 
   return (
@@ -68,7 +73,7 @@ export const NewsFilters: React.FC = () => {
         <input
           type="text"
           placeholder="Search articles..."
-          className="w-full pl-10 pr-4 py-2 border rounded-md"
+          className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -135,9 +140,9 @@ export const NewsFilters: React.FC = () => {
       {/* Clear Filters Button */}
       <button
         onClick={clearFilters}
-        className="flex items-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+        className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
       >
-        <X size={16} className="mr-2" /> Clear Filters
+        Reset Filters
       </button>
     </div>
   );

@@ -6,6 +6,7 @@ A modern news aggregator built with React, TypeScript, and Vite that pulls artic
 
 - Search articles across multiple news sources
 - Filter articles by source
+- Personalize Filter and sources
 - Responsive design for mobile and desktop
 - Real-time search updates
 - Clean and modern UI
@@ -13,6 +14,7 @@ A modern news aggregator built with React, TypeScript, and Vite that pulls artic
 ## Prerequisites
 
 Before running the application, you'll need to obtain API keys from:
+
 - [NewsAPI](https://newsapi.org/)
 - [The Guardian](https://open-platform.theguardian.com/)
 - [The New York Times](https://developer.nytimes.com/)
@@ -30,11 +32,13 @@ VITE_NYT_API_KEY=your_nyt_key
 ## Running Locally
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -42,11 +46,13 @@ npm run dev
 ## Running with Docker
 
 1. Build the Docker image:
+
 ```bash
 docker build -t news-aggregator .
 ```
 
 2. Run the container:
+
 ```bash
 docker run -p 4173:4173 -e VITE_NEWS_API_KEY=your_key -e VITE_GUARDIAN_API_KEY=your_key -e VITE_NYT_API_KEY=your_key news-aggregator
 ```
@@ -59,6 +65,7 @@ The application follows SOLID principles and is organized into the following str
 
 - `/src/components`: React components
 - `/src/services`: API integration and services
+- `/src/hooks`: Dobounce hook
 - `/src/store`: State management using Zustand
 - `/src/types`: TypeScript interfaces and types
 
@@ -72,3 +79,4 @@ The application follows SOLID principles and is organized into the following str
 - Axios
 - Date-fns
 - Lucide React
+- react-hot-toast

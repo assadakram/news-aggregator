@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Article } from "../../types/news";
+import toast from "react-hot-toast";
 
 const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 const GUARDIAN_API_KEY = import.meta.env.VITE_GUARDIAN_API_KEY;
@@ -92,7 +93,7 @@ export const fetchNewsApiArticles = async ({
 
     return articles;
   } catch (error) {
-    console.error("Error fetching NewsAPI articles:", error);
+    toast.error(`Error fetching NewsAPI articles: ${error}`);
     return [];
   }
 };
@@ -134,7 +135,7 @@ export const fetchGuardianArticles = async ({
       })
     );
   } catch (error) {
-    console.error("Error fetching The Guardian articles:", error);
+    toast.error(`Error fetching The Guardian articles: ${error}`);
     return [];
   }
 };
@@ -184,7 +185,7 @@ export const fetchNYTArticles = async ({
       })
     );
   } catch (error) {
-    console.error("Error fetching NYT articles:", error);
+    toast.error(`Error fetching NYT articles: ${error}`);
     return [];
   }
 };

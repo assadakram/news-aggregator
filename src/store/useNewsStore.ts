@@ -7,7 +7,7 @@ export const useNewsStore = create<NewsStore>()(
     (set) => ({
       filters: {
         search: "",
-        categories: [],
+        categories: ["Business"],
         authors: [],
         fromDate: "",
         toDate: "",

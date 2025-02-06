@@ -32,3 +32,7 @@ export interface Article {
   category: string;
   author?: string;
 }
+
+export interface ArticleCardProps {
+  article: Article;
+}

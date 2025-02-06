@@ -1,11 +1,7 @@
 import React from "react";
-import { Article } from "../types/news";
+import { ArticleCardProps } from "../types/news";
 import { Calendar, User, Newspaper } from "lucide-react";
 import { format } from "date-fns";
-
-interface ArticleCardProps {
-  article: Article;
-}
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   return (
@@ -31,26 +27,32 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           {article.description}
         </p>
 
-        {/* Metadata */}
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 truncate">
-          <div className="flex items-center gap-2 truncate">
-            <Calendar size={16} />
-            <span>{format(new Date(article.publishedAt), "MMM d, yyyy")}</span>
-          </div>
-          {article.author && (
-            <div className="flex items-center gap-2 truncate">
-              <User size={16} />
-              <span className="truncate">{article.author}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 truncate">
-            <Newspaper size={16} />
-            <span className="truncate">{article.source}</span>
-          </div>
-        </div>
-
-        {/* Read More Button - Always at the bottom */}
+        {/* Metadata and Read More Button - Always at the bottom */}
         <div className="mt-auto">
+          <div className="flex items-center gap-3 text-sm text-gray-500 mb-4">
+            <div className="flex items-center gap-1 min-w-0">
+              <Calendar size={16} />
+              <span className="truncate">
+                {format(new Date(article.publishedAt), "MMM d, yyyy")}
+              </span>
+            </div>
+
+            {/* Author (Always Shows Icon, Even if Author is Missing) */}
+            <div className="flex items-center gap-1 min-w-0">
+              <User size={16} />
+              <span className="truncate w-24 overflow-hidden whitespace-nowrap">
+                {article.author || "Unknown"}
+              </span>
+            </div>
+
+            {/* Source Name (Always Shows Icon) */}
+            <div className="flex items-center gap-1 min-w-0">
+              <Newspaper size={16} />
+              <span className="truncate w-24 overflow-hidden whitespace-nowrap">
+                {article.source}
+              </span>
+            </div>
+          </div>
           <a
             href={article.url}
             target="_blank"

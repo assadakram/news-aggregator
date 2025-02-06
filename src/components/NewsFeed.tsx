@@ -8,6 +8,7 @@ import {
 } from "../services/api/newsApi";
 import { Loader } from "lucide-react";
 import { Article } from "../types/news";
+import toast from "react-hot-toast";
 
 export const NewsFeed: React.FC = () => {
   const { filters, sources } = useNewsStore();
@@ -76,7 +77,7 @@ export const NewsFeed: React.FC = () => {
           )
         );
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        toast.error(`Error fetching articles: ${error}`);
       } finally {
         setLoading(false);
       }

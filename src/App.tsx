@@ -1,6 +1,7 @@
 import { Newspaper } from "lucide-react";
 import { NewsFilters } from "./components/NewsFilters";
 import { NewsFeed } from "./components/NewsFeed";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -16,9 +17,15 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 relative">
         <NewsFilters />
         <NewsFeed />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
       </main>
     </div>
   );
