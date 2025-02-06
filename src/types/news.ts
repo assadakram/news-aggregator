@@ -15,10 +15,12 @@ interface NewsFilters {
 }
 
 export interface NewsStore {
+  hydrated: boolean;
   filters: NewsFilters;
   sources: NewsSource[];
   setFilters: (filters: Partial<NewsFilters>) => void;
   toggleSource: (sourceId: string) => void;
+  setHydrated: () => void;
 }
 
 export interface Article {

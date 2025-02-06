@@ -31,6 +31,13 @@ type Payload = {
   authors?: string;
 };
 
+const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error) && error.response?.data) {
+    return error.response.data.message || "Something went wrong!";
+  }
+  return error instanceof Error ? error.message : "Unknown error occurred.";
+};
+
 export const fetchNewsApiArticles = async ({
   q,
   category,
@@ -93,7 +100,7 @@ export const fetchNewsApiArticles = async ({
 
     return articles;
   } catch (error) {
-    toast.error(`Error fetching NewsAPI articles: ${error}`);
+    toast.error(getErrorMessage(error));
     return [];
   }
 };
@@ -135,7 +142,7 @@ export const fetchGuardianArticles = async ({
       })
     );
   } catch (error) {
-    toast.error(`Error fetching The Guardian articles: ${error}`);
+    toast.error(getErrorMessage(error));
     return [];
   }
 };
@@ -185,7 +192,7 @@ export const fetchNYTArticles = async ({
       })
     );
   } catch (error) {
-    toast.error(`Error fetching NYT articles: ${error}`);
+    toast.error(getErrorMessage(error));
     return [];
   }
 };

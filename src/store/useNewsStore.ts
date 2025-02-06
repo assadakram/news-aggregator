@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { NewsStore } from "../types/news";
 
 export const useNewsStore = create<NewsStore>()(
   persist(
     (set) => ({
+      hydrated: false,
       filters: {
         search: "",
         categories: ["Business"],
@@ -29,10 +30,14 @@ export const useNewsStore = create<NewsStore>()(
               : source
           ),
         })),
+      setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: "news-preferences-storage",
-      getStorage: () => localStorage,
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) state.setHydrated();
+      },
       partialize: (state) => ({
         filters: state.filters,
         sources: state.sources,

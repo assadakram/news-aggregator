@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { ArticleCard } from "./ArticleCard";
 import { useNewsStore } from "../store/useNewsStore";
 import {
@@ -11,9 +11,10 @@ import { Article } from "../types/news";
 import toast from "react-hot-toast";
 
 export const NewsFeed: React.FC = () => {
-  const { filters, sources } = useNewsStore();
+  const { filters, sources, hydrated } = useNewsStore();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
+  const hasMount = useRef(false);
 
   const payload = useMemo(
     () => ({
@@ -40,11 +41,19 @@ export const NewsFeed: React.FC = () => {
   );
 
   useEffect(() => {
+    if (!hydrated) return;
+
+    if (!hasMount.current) {
+      hasMount.current = true;
+      return;
+    }
+
     if (
       !filters.search &&
       filters.categories.length === 0 &&
       filters.authors.length === 0 &&
-      !filters.fromDate
+      !filters.fromDate &&
+      !filters.toDate
     ) {
       setArticles([]);
       return;
@@ -84,7 +93,7 @@ export const NewsFeed: React.FC = () => {
     };
 
     fetchArticles();
-  }, [filters, enabledSources, payload]);
+  }, [hydrated, payload, enabledSources]);
 
   if (
     !filters.search &&

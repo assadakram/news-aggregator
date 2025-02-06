@@ -65,7 +65,7 @@ The application follows SOLID principles and is organized into the following str
 
 - `/src/components`: React components
 - `/src/services`: API integration and services
-- `/src/hooks`: Dobounce hook
+- `/src/hooks`: Debounce hook
 - `/src/store`: State management using Zustand
 - `/src/types`: TypeScript interfaces and types
 
