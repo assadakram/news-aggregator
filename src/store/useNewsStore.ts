@@ -14,7 +14,9 @@ export const useNewsStore = create<NewsStore>()(
         toDate: "",
       },
       sources: [
+        { id: "newsapi", name: "NewsAPI", enabled: false },
         { id: "guardian", name: "The Guardian", enabled: true },
+        { id: "nyt", name: "The New York Times", enabled: false },
       ],
       setFilters: (newFilters) =>
         set((state) => ({
