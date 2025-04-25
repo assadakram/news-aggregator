@@ -115,7 +115,7 @@ export const fetchGuardianArticles = async ({
     const response = await guardianClient.get("/search", {
       params: {
         q,
-        section: category || undefined,
+        section: category?.toLowerCase() || undefined,
         "from-date": fromDate || undefined,
         "to-date": toDate || undefined,
         orderBy: "newest",
@@ -167,6 +167,10 @@ export const fetchNYTArticles = async ({
         sort: "newest",
       },
     });
+
+    if (!response.data.response.docs) {
+      return [];
+    }
 
     return response.data.response.docs.map(
       (article: {
