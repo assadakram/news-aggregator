@@ -93,7 +93,7 @@ export const NewsFeed: React.FC = () => {
     };
 
     fetchArticles();
-  }, [hydrated, payload, enabledSources]);
+  }, [hydrated, payload, enabledSources, filters.search, filters.categories.length, filters.authors.length, filters.fromDate, filters.toDate]);
 
   if (
     !filters.search &&
