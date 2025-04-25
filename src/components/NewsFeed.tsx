@@ -14,7 +14,6 @@ export const NewsFeed: React.FC = () => {
   const { filters, sources, hydrated } = useNewsStore();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
-  const hasMount = useRef(false);
 
   const payload = useMemo(
     () => ({
@@ -43,10 +42,7 @@ export const NewsFeed: React.FC = () => {
   useEffect(() => {
     if (!hydrated) return;
 
-    if (!hasMount.current) {
-      hasMount.current = true;
-      return;
-    }
+
 
     if (
       !filters.search &&
